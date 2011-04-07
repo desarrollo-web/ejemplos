@@ -4,9 +4,13 @@
 Ejemplos de decoradores: más funciones que modifican a otras
 esta vez usaremos el módulo de pruebas de unidad 
 ``unittest``: http://docs.python.org/library/unittest.html
+
+
+Si necesitan más discusión: 
+http://stackoverflow.com/questions/739654/understanding-python-decorators
 '''
 
-import json, pickle
+import json
 
 def json_fun(f):
     def wrapper(json_string, *args, **kwargs):
@@ -33,14 +37,16 @@ def foo(mapa):
     #¿Qué hacen assert e isinstance?
 
     assert isinstance(mapa, dict)
+
     return dict(zip(mapa.values(), mapa.keys()))
 
 foo = json_fun(foo)
 
-@@@json_fun
+@json_fun
 def foobar(lista):
 
     assert isinstance(lista, list)
+    
     #¿qué hace la función enumerate?
     return dict(enumerate(lista))
 
@@ -49,26 +55,37 @@ def foobar(lista):
 También podemos tener fábricas de decoradores: funciones que retornan decoradores
 '''
 
-def serialize(format="json"):
+def pimp_string(with_effect="bold"):
     def decorator(f):
         def wrapper(*args, **kwargs):
             result = f(*args, **kwargs)
-            if format == 'json':
-                return json.dumps(result)
-            elif format == 'pickle':
-                return pickle.dumps(result)
+            
+            #¿qué hace esto?
+            tag_with = lambda tag: "<%s>%s</%s>"%(tag, result, tag)
+
+            if with_effect == 'bold':
+                return tag_with('strong')
+            elif with_effect == 'italic':
+                return tag_with('em')
+            elif with_effect == 'underline':
+                return tag_with('u')
             else:
-                throw Exception("Invalid format")
+                return result
+
         return wrapper
     return decorator
 
-@@@serialize()
-def tage():
-    from calendar import day_name
-    return dict(zip("Montag Dienstag Mittwoche Donnerstag Freitag Samtag Suntag".split(), list(day_name)))
 
-@@@serialize(format='pickle')
-def mons():
-    from calendar import month_name
-    return dict(zip("Janvier Fevrier Mars Avril".split(), list(month_name)[1:5]))
-    
+@pimp_string()
+def lorem_ipsum():
+    return "Lorem ipsum dolor sic amet"
+
+
+#Nada nos impide aplicar más de un decorador
+@pimp_string(with_effect="italic")
+@pimp_string(with_effect="underline")
+def random_text():
+    return """Hola, soy un string con
+    varias lineas, nadie tiene problemas conmigo
+    porque tengo triples comillas dobles"""
+
