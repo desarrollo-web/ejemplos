@@ -91,32 +91,6 @@ class Vector(list):
         #Llamada al constructor de la super-clase
         list.__init__(self, elems)
     
-    def __add__(self, o):
-        """
-        Suma de vectores
-        """
-
-        return Vector(*[a+b for a,b in zip(self, o)])
-
-    def __sub__(self, o):
-        """
-        Resta de vectores
-        """
-
-        return Vector(*[a-b for a,b in zip(self, o)])
-    
-    def __mul__(self, o):
-        """
-        Producto punto
-        """
-        return sum([a*b for a,b in zip(self, o)])
-
-    def __rmul__(self, k):
-        """
-        Producto escalar
-        """
-
-        return Vector(*[k*e for e in self])
 
 class Tree:
     """
