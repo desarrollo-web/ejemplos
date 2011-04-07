@@ -11,6 +11,8 @@ class Point:
     >>> a = Point(1,1)
     >>> a.distance(Point())
     1.4142135623730951
+    >>> Point(1,1) + Point(2,2)
+    (3, 3)
     """
 
     def __init__(self, x = 0, y = 0):
@@ -58,7 +60,7 @@ class Struct(dict):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Struct, self).__init__(*args, **kwargs)
+        dict.__init__(self, *args, **kwargs)
         self.__dict__ = self
 
 
@@ -87,7 +89,7 @@ class Vector(list):
     
     def __init__(self, *elems):
         #Llamada al constructor de la super-clase
-        super(Vector, self).__init__(elems)
+        list.__init__(self, elems)
     
     def __add__(self, o):
         """
@@ -127,6 +129,10 @@ class Tree:
     a
     b
     c
+    >>> 'y' in Tree('x', Tree('a'), Tree('z', Tree('a')))
+    True
+    >>> 'm' in Tree('x', Tree('a'), Tree('z', Tree('a')))
+    False 
     """
 
     def __init__(self, datum, right=None, left=None):
