@@ -87,9 +87,6 @@ class Vector(list):
     6
     """
     
-    def __init__(self, *elems):
-        #Llamada al constructor de la super-clase
-        list.__init__(self, elems)
     
 
 class Tree:
