@@ -9,7 +9,7 @@ class Point:
     >>> Point(y=6)
     (0, 6)
     >>> a = Point(1,1)
-    >>> a.distance(Point())
+    >>> a.distance()
     1.4142135623730951
     >>> Point(1,1) + Point(2,2)
     (3, 3)
@@ -19,13 +19,16 @@ class Point:
         self.x = x
         self.y = y
 
-    def distance(self, o):
+    def distance(self, o=None):
         o = o if o else Point()
         return ((o.x - self.x)**2 + (o.y - self.y)**2)**0.5
 
     def __str__(self):
         return "(%s, %s)"%(self.x, self.y)
     
+    def __add__(self, o):
+        return Point(self.x+o.x, self.y+o.y)
+
     __repr__ = __str__
 
 class CountDict(dict):
@@ -87,7 +90,20 @@ class Vector(list):
     6
     """
     
+    def __init__(self, *args):
+        list.__init__(self, args)
     
+    def __add__(self, o):
+        return Vector(*[a+b for a,b in zip(self, o)])
+
+    def __sub__(self, o):
+        return Vector(*[a-b for a,b in zip(self, o)])
+
+    def __rmul__(self, k):
+        return Vector(*[k*e for e in self])
+
+    def __mul__(self, o):
+        return sum([a*b for a,b in zip(self, o)])
 
 class Tree:
     """
@@ -100,10 +116,10 @@ class Tree:
     a
     b
     c
-    >>> 'y' in Tree('x', Tree('a'), Tree('z', Tree('a')))
+    >>> 'y' in Tree('x', Tree('a'), Tree('z', Tree('y')))
     True
     >>> 'm' in Tree('x', Tree('a'), Tree('z', Tree('a')))
-    False 
+    False
     """
 
     def __init__(self, datum, right=None, left=None):
@@ -123,6 +139,12 @@ class Tree:
             for e in self.left:
                 yield e
 
+    def __contains__(self, elem):
+        for leaf in self:
+            if leaf == elem: 
+                return True
+
+        return False
     
 if __name__ == "__main__":
     import doctest
