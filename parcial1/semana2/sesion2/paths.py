@@ -2,13 +2,15 @@ import random
 
 t = """
 <html>
+   <head>
+   </head>
    <body style='font-size: 250px;'>
    %(content)s
-   <body>
+   </body>
 </html>
 """
 
-f = open('/usr/share/dict/words')
+f = open('/usr/share/dict/spanish')
 
 def rand_word():
     return random.choice(f.readlines(512))
@@ -25,6 +27,8 @@ def application(environ, start_response):
         response = rand_int()
     elif path == "/word":
         response = rand_word()
+    else:
+        response = "La ruta %s no existe" % path
     
     response = t%{'content': response}
 
