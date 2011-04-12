@@ -6,7 +6,10 @@ Una aplicación sencilla que se apega al protocolo WSGI
 
 def application(environ, #un diccionario llenado por WSGI
         start_response):  #una función que dice cómo responder
-  text = 'Hola Mundo!\n'
+  text = ""
+  for k,v in environ.items():
+      text += "%s: %s\n"%(k,v)
+
   start_response(
           #status
           "200 OK",
@@ -20,5 +23,5 @@ from wsgiref.simple_server import make_server
 
 daemon = make_server('127.0.0.1', 8000, application)
 
-daemon.handle_request()
+daemon.serve_forever()
 

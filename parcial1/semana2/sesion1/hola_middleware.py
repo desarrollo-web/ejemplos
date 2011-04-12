@@ -16,9 +16,17 @@ def application(environ, #un diccionario llenado por WSGI
           )
   return [text]
 
+class ReverseMiddleware:
+    def __init__(self, app):
+        self.wrapped_app = app
+
+    def __call__(self, environ, start_response):
+        for data in self.wrapped_app(environ, start_response):
+            return data[::-1]
+
 from wsgiref.simple_server import make_server
 
-daemon = make_server('127.0.0.1', 8000, application)
+daemon = make_server('127.0.0.1', 8000, ReverseMiddleware(application))
 
 daemon.handle_request()
 
