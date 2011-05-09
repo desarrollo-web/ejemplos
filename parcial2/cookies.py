@@ -34,8 +34,8 @@ def application(environ, start_response):
         response = base%{'contenido': '<div style="background-color:green;color:white">Cookie establecida</div>'}
         headers.update({'Set-Cookie': cookies['name'].OutputString()})
     else:
-        name = cookies.get('name', 'No has puesto la cookie')
-        response = base%{'contenido': "<p>El valor de la cookie es: %s</p>"%name.value}
+        name = cookies.get('name', None)
+        response = base%{'contenido': "<p>El valor de la cookie es: %s</p>"%name.value if name else 'Ninguno'}
     
     headers.update({'Content-Length': str(len(response))})
 
