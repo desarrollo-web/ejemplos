@@ -1,9 +1,14 @@
+#encoding=utf-8
 from Cookie import SimpleCookie
 from cgi import parse_qs
+from uuid import uuid1
 
 base = """
 <!DOCTYPE html>
 <html>
+   <head>
+    <meta charset="utf-8"/>
+   </head>
    <body style='font-size: 75px;'>
    %(contenido)s
    <a href="/">Cambiar cookie</a>
@@ -19,6 +24,24 @@ form ="""
    </form>
 """
 
+import shelve
+class Session:
+    conn = shelve.open('sesiones.db')
+
+    def __init__(self, val, *args, **kwargs):
+        self._id = uuid1().hex
+        self.value= val
+        self.pk = self._id
+
+    @classmethod
+    def obtener(cls, _id):
+        return cls.conn.get(_id, None)
+
+    @classmethod
+    def crear(cls, contenido):
+        obj = cls(contenido)
+        cls.conn[obj._id] = obj
+        return obj
 
 def application(environ, start_response): 
 
@@ -30,12 +53,13 @@ def application(environ, start_response):
     if path == '/':
         response = base%{'contenido': form}
     elif path == '/set':
-        cookies['name'] = GET.get('name', 'NULL McNULL')[0]
+        cookies['sessionId'] = Session.crear(GET.get('name', ['NULL McNULL',])[0]).pk
         response = base%{'contenido': '<div style="background-color:green;color:white">Cookie establecida</div>'}
-        headers.update({'Set-Cookie': cookies['name'].OutputString()})
+        headers.update({'Set-Cookie': cookies['sessionId'].OutputString()})
     else:
-        name = cookies.get('name', None)
-        response = base%{'contenido': "<p>El valor de la cookie es: %s</p>"%name.value if name else 'Ninguno'}
+        cookie = cookies.get('sessionId',None)
+        name = cookie and Session.obtener(cookie.value) or None
+        response = base%{'contenido': "<p>El valor de la sesión es: %s</p>"%name.value if name else 'Ninguno'}
     
     headers.update({'Content-Length': str(len(response))})
 
