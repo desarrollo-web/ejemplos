@@ -25,23 +25,14 @@ form ="""
 """
 
 import shelve
-class Session:
-    conn = shelve.open('sesiones.db')
+store = shelve.open('sesiones.db')
 
-    def __init__(self, val, *args, **kwargs):
-        self._id = uuid1().hex
-        self.value= val
-        self.pk = self._id
+def _agregar(val):
+    pk = uuid1().hex
+    store[pk] = val
+    return pk
 
-    @classmethod
-    def obtener(cls, _id):
-        return cls.conn.get(_id, None)
-
-    @classmethod
-    def crear(cls, contenido):
-        obj = cls(contenido)
-        cls.conn[obj._id] = obj
-        return obj
+store.add = _agregar 
 
 def application(environ, start_response): 
 
@@ -53,13 +44,13 @@ def application(environ, start_response):
     if path == '/':
         response = base%{'contenido': form}
     elif path == '/set':
-        cookies['sessionId'] = Session.crear(GET.get('name', ['NULL McNULL',])[0]).pk
+        cookies['sessionId'] = store.add(GET.get('name', ['NULL McNULL',])[0])
         response = base%{'contenido': '<div style="background-color:green;color:white">Cookie establecida</div>'}
         headers.update({'Set-Cookie': cookies['sessionId'].OutputString()})
     else:
         cookie = cookies.get('sessionId',None)
-        name = cookie and Session.obtener(cookie.value) or None
-        response = base%{'contenido': "<p>El valor de la sesión es: %s</p>"%name.value if name else 'Ninguno'}
+        name = cookie and store.get(cookie.value, None) or None
+        response = base%{'contenido': "<p>El valor de la sesión es: %s</p>"%name if name else 'Ninguno'}
     
     headers.update({'Content-Length': str(len(response))})
 
